@@ -3,28 +3,29 @@ pragma solidity ^0.8.0;
 pragma experimental ABIEncoderV2;
 import "./ERC20.sol";
 
-contract Loteria{
-    //Instancia del contrato token
+contract Lotery{
+    //Token contract instance
     ERC20Basic private token;
 
-    //Evento de tokens comprados
-    event compraTokens(uint, address);
+    //Event for buyed tokens
+    event buyedTokens(uint, address);
 
-    //Direcciones iniciales
+    //Initial addresses
     address public owner;
-    address public contrato;
+    address public lotery_contract;
 
     constructor(){
+        //Setting the amount of tokens to 10000
         token = new ERC20Basic(10000);
         owner = payable(msg.sender);
-        contrato = address(this);
+        lotery_contract = address(this);
     }
 
     // ------------------------------- TOKEN -------------------------------
 
-    //Funcion para establecer el precio de un token
-    function precioTokens(uint _numTokens) internal pure returns(uint){
-        //Conversion de tokens a Ethers: 1 TEST = 1 Ether
+    //Function to stablish the price of a token
+    function tokenPrice(uint _numTokens) internal pure returns(uint){
+        //Convertong tokens to Ethers: 1 TEST = 1 Ether
         return _numTokens*(1 ether);
     }
 
@@ -42,7 +43,7 @@ contract Loteria{
     //Funcion para comprar tokens
     function comprarTokens(uint _numTokens) public payable{
         //Calcular el coste de los tokens
-        uint coste = precioTokens(_numTokens);
+        uint coste = tokenPrice(_numTokens);
         //Se requiere que se tenga el dinero para pagar los tokens
         require(msg.value >= coste, "No cuenta con el balance necesario");
         //Diferencia de tokens
@@ -56,12 +57,12 @@ contract Loteria{
         //Transferencia de tokens
         token.transfer(msg.sender, _numTokens);
         //Evento de compra de tokens
-        emit compraTokens(_numTokens, msg.sender);
+        emit buyedTokens(_numTokens, msg.sender);
     }
 
     //Balance de tokens en el contrato
     function tokensDisponibles() public view returns(uint){
-        return token.balanceOf(contrato);
+        return token.balanceOf(lotery_contract);
     }
 
     //Obtener el balance de tokens que se acumulan en el bote
@@ -74,7 +75,7 @@ contract Loteria{
         return token.balanceOf(msg.sender);
     }
 
-    // ------------------------------- LOTERIA -------------------------------
+    // ------------------------------- LOTERY -------------------------------
 
     //Precio del boleto
     uint public precioBoleto = 5;
@@ -159,8 +160,8 @@ contract Loteria{
         //El usuario debe tener la cantidad de tokens que desea devolver
         require(_numTokens <= misTokens(), "No tienes los tokens que deseas devolver");
         //El cliente devuelve los tokens
-        token.transferClient(msg.sender, contrato, _numTokens);
-        payable(msg.sender).transfer(precioTokens(_numTokens));
+        token.transferClient(msg.sender, lotery_contract, _numTokens);
+        payable(msg.sender).transfer(tokenPrice(_numTokens));
         //Se emite el evento de tokens devueltos
         emit DevolverTokens(_numTokens, msg.sender);
     }
