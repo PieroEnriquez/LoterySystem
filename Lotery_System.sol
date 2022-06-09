@@ -56,7 +56,7 @@ contract Lotery{
         require(_numTokens >= Balance, "There's not enough tokens available");
         //Transfering the tokens
         token.transfer(msg.sender, _numTokens);
-        //Emiting the event for token buying
+        //Emiting the event for buying tokens
         emit buyedTokens(_numTokens, msg.sender);
     }
 
