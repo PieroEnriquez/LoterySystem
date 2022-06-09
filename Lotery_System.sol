@@ -25,22 +25,22 @@ contract Lotery{
 
     //Function to stablish the price of a token
     function tokenPrice(uint _numTokens) internal pure returns(uint){
-        //Convertong tokens to Ethers: 1 TEST = 1 Ether
+        //Converting tokens to Ethers: 1 TEST = 1 Ether
         return _numTokens*(1 ether);
     }
 
-    //Modificador para que solo el owner puede ejecutar una funcion
-    modifier soloOwner(address _owner){
-        require(_owner == owner, "No tienes permiso para ejecutar esta funcion");
+    //Modifier to only let the owner of the contract run a function
+    modifier onlyOwner(address _owner){
+        require(_owner == owner, "You have no permission to run this function");
         _;
     }
 
-    //Generar mas tokens para la loteria
-    function generarTokens(uint _numTokens) public soloOwner(msg.sender){
+    //Generating more tokens for the lotery
+    function generateTokens(uint _numTokens) public onlyOwner(msg.sender){
         token.increaseTotalSupply(_numTokens);
     }
 
-    //Funcion para comprar tokens
+    //Buying tokens
     function comprarTokens(uint _numTokens) public payable{
         //Calcular el coste de los tokens
         uint coste = tokenPrice(_numTokens);
@@ -136,7 +136,7 @@ contract Lotery{
     }
 
     //Funcion para generar un ganador y darle los tokens
-    function generarGanador() public payable soloOwner(msg.sender){
+    function generarGanador() public payable onlyOwner(msg.sender){
         //Cantidad de boletos comprados debe ser mayor a 0
         require(boletosComprados.length > 0);
         //Declaracion de la longitud del array
