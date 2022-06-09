@@ -41,22 +41,22 @@ contract Lotery{
     }
 
     //Buying tokens
-    function comprarTokens(uint _numTokens) public payable{
-        //Calcular el coste de los tokens
-        uint coste = tokenPrice(_numTokens);
-        //Se requiere que se tenga el dinero para pagar los tokens
-        require(msg.value >= coste, "No cuenta con el balance necesario");
-        //Diferencia de tokens
-        uint returnValue = msg.value - coste;
-        //Transferencia de la diferencia
+    function buyTokens(uint _numTokens) public payable{
+        //Calculating tokens price
+        uint cost = tokenPrice(_numTokens);
+        //It requires the user having the amount of money to acquire the tokens
+        require(msg.value >= cost, "Not enough balance to get this amount");
+        //Calculating the diference between the amount the user has and the the amount of tokens the user wants to get
+        uint returnValue = msg.value - cost;
+        //Transfering the diference
         payable(msg.sender).transfer(returnValue);
-        //Obtener el balance de tokens del contrato
+        //Getting the token balance of the contract
         uint Balance = tokensDisponibles();
-        //Filtro para saber si los tokens que se quieren comprar, existen
-        require(_numTokens >= Balance, "No se dispone de la cantidad de tokens que desea comprar");
-        //Transferencia de tokens
+        //Filter in case there's not enough of tokens available in the contract
+        require(_numTokens >= Balance, "There's not enough tokens available");
+        //Transfering the tokens
         token.transfer(msg.sender, _numTokens);
-        //Evento de compra de tokens
+        //Emiting the event for token buying
         emit buyedTokens(_numTokens, msg.sender);
     }
 
