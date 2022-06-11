@@ -154,16 +154,16 @@ contract Lotery{
         token.transferClient(msg.sender, winnerAddress, boat());
     }
 
-    //Funcion que permita cambiar los tokens por ethers
-    function devolverTokens(uint _numTokens) public payable{
-        //El numero de tokens debe ser mayor a 0
-        require(_numTokens > 0, "Debes devolver una cantidad positiva de tokens");
-        //El usuario debe tener la cantidad de tokens que desea devolver
-        require(_numTokens <= myTokens(), "No tienes los tokens que deseas devolver");
-        //El cliente devuelve los tokens
+    //Function to allow to exchange tokens for ethers
+    function returnTokens(uint _numTokens) public payable{
+        //Number of tokens must be more than 0
+        require(_numTokens > 0, "Must return a number of tokens bigger than 0");
+        //User must have the amount of tokens the user wants to return
+        require(_numTokens <= myTokens(), "You don't have the amount of tokens you want to return");
+        //Client returns tokens
         token.transferClient(msg.sender, lotery_contract, _numTokens);
         payable(msg.sender).transfer(tokenPrice(_numTokens));
-        //Se emite el evento de tokens devueltos
+        //Emiting the event for returning tokens
         emit ReturnTokens(_numTokens, msg.sender);
     }
 
