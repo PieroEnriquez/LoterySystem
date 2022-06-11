@@ -51,7 +51,7 @@ contract Lotery{
         //Transfering the diference
         payable(msg.sender).transfer(returnValue);
         //Getting the token balance of the contract
-        uint Balance = tokensDisponibles();
+        uint Balance = availableTokens();
         //Filter in case there's not enough of tokens available in the contract
         require(_numTokens >= Balance, "There's not enough tokens available");
         //Transfering the tokens
@@ -60,51 +60,51 @@ contract Lotery{
         emit buyedTokens(_numTokens, msg.sender);
     }
 
-    //Balance de tokens en el contrato
-    function tokensDisponibles() public view returns(uint){
+    //Token bakance on the contract
+    function availableTokens() public view returns(uint){
         return token.balanceOf(lotery_contract);
     }
 
-    //Obtener el balance de tokens que se acumulan en el bote
-    function bote() public view returns(uint){
+    //Amount of tokens accumulated in the boat
+    function boat() public view returns(uint){
         return token.balanceOf(owner);
     }
 
     //Funcion para ver la cantidad de tokens que tiene una persona
-    function misTokens() public view returns(uint){
+    function myTokens() public view returns(uint){
         return token.balanceOf(msg.sender);
     }
 
     // ------------------------------- LOTERY -------------------------------
 
-    //Precio del boleto
-    uint public precioBoleto = 5;
+    //Amount of tokens necessary to buy a lottery ticket
+    uint public ticketPrice = 5;
 
-    //Relacion entre la persona que compra los boletos y su numero de boleto
-    mapping(address => uint[]) idPersonaBoletos;
+    //Relating people's address with their ticket number
+    mapping(address => uint[]) idPeopleTickets;
 
-    //Relacion para identificar al ganador
-    mapping(uint => address) ADNboleto;
+    //Mapping to identify the winner of the lotery
+    mapping(uint => address) DNAticket;
 
-    //Numero aleatorio
+    //Random number: This will be used to create a unique ticket number
     uint randNonce = 0;
 
-    //Boletos generados
-    uint[] boletosComprados;
+    //Generated tickets
+    uint[] generatedTickets;
 
-    //Evento de boletos comprados
-    event BoletoComprado(uint, address);
-    //Evento de boleto ganador
-    event BoletoGanador(uint);
-    //Evento de devolucion de tokens
-    event DevolverTokens(uint, address);
+    //Event for buyed tickets
+    event BuyedTicket(uint, address);
+    //Event for the winner ticket
+    event WinnerTicket(uint);
+    //Event for returning tickets
+    event ReturnTokens(uint, address);
 
-    //Funcion para comprar boletos
+    //Function para comprar boletos
     function compraBoletos(uint _numBoletos) public{
         //Precio de los boletos
-        uint precioBoletos = _numBoletos*precioBoleto;
+        uint precioBoletos = _numBoletos*ticketPrice;
         //Filtro de los tokens a pagar
-        require(precioBoletos <= misTokens(), "No cuenta con la cantidad de tokens requerida");
+        require(precioBoletos <= myTokens(), "No cuenta con la cantidad de tokens requerida");
         /*
         El cliente paga el boleto en tokens, por lo que se creo una funcion en el contrato del token con el nombre transferClient, ya que,
         en caso de usar transfer o transferFrom, las direcciones eran equivocadas por recibir la direccion del mismo contrato y no quien lo ejecuta
@@ -120,37 +120,37 @@ contract Lotery{
             uint random = uint(keccak256(abi.encodePacked(block.timestamp, msg.sender, randNonce)))%10000;
             randNonce++;
             //Se almacenan los datos de los boletos
-            idPersonaBoletos[msg.sender].push(random);
+            idPeopleTickets[msg.sender].push(random);
             //Numero de boletos comprados
-            boletosComprados.push(random);
+            generatedTickets.push(random);
             //Asignacion del adn del boleto para tener un ganador
-            ADNboleto[random] = msg.sender;
+            DNAticket[random] = msg.sender;
             //Emision del evento
-            emit BoletoComprado(_numBoletos, msg.sender);
+            emit BuyedTicket(_numBoletos, msg.sender);
         }
     }
 
     //Funcion para ver los boletos comprados
     function misBoletos() public view returns(uint[]memory){
-        return idPersonaBoletos[msg.sender];
+        return idPeopleTickets[msg.sender];
     }
 
     //Funcion para generar un ganador y darle los tokens
     function generarGanador() public payable onlyOwner(msg.sender){
         //Cantidad de boletos comprados debe ser mayor a 0
-        require(boletosComprados.length > 0);
+        require(generatedTickets.length > 0);
         //Declaracion de la longitud del array
-        uint longitud = boletosComprados.length;
+        uint longitud = generatedTickets.length;
         //Aleatoriamente se elige un numero entre el 0 y la longitud
         uint posicionArray = uint(uint(keccak256(abi.encodePacked(block.timestamp)))%longitud);
         //Seleccion del numero aleatorio mediante la posicion del array aleatoria
-        uint eleccion = boletosComprados[posicionArray];
+        uint eleccion = generatedTickets[posicionArray];
         //Emision del evento del ganador
-        emit BoletoGanador(eleccion);
+        emit WinnerTicket(eleccion);
         //Se recupera la address del ganador
-        address direccionGanador = ADNboleto[eleccion];
+        address direccionGanador = DNAticket[eleccion];
         //Enviarle los tokens del premio al ganador
-        token.transferClient(msg.sender, direccionGanador, bote());
+        token.transferClient(msg.sender, direccionGanador, boat());
     }
 
     //Funcion que permita cambiar los tokens por ethers
@@ -158,12 +158,12 @@ contract Lotery{
         //El numero de tokens debe ser mayor a 0
         require(_numTokens > 0, "Debes devolver una cantidad positiva de tokens");
         //El usuario debe tener la cantidad de tokens que desea devolver
-        require(_numTokens <= misTokens(), "No tienes los tokens que deseas devolver");
+        require(_numTokens <= myTokens(), "No tienes los tokens que deseas devolver");
         //El cliente devuelve los tokens
         token.transferClient(msg.sender, lotery_contract, _numTokens);
         payable(msg.sender).transfer(tokenPrice(_numTokens));
         //Se emite el evento de tokens devueltos
-        emit DevolverTokens(_numTokens, msg.sender);
+        emit ReturnTokens(_numTokens, msg.sender);
     }
 
 }
