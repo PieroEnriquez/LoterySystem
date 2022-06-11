@@ -99,34 +99,35 @@ contract Lotery{
     //Event for returning tickets
     event ReturnTokens(uint, address);
 
-    //Function para comprar boletos
-    function compraBoletos(uint _numBoletos) public{
-        //Precio de los boletos
-        uint precioBoletos = _numBoletos*ticketPrice;
-        //Filtro de los tokens a pagar
-        require(precioBoletos <= myTokens(), "No cuenta con la cantidad de tokens requerida");
+    //Function to buy tickets
+    function buyTickets(uint _numTickets) public{
+        //Price to buy tickets
+        uint priceTickets = _numTickets*ticketPrice;
+        //Filter for buyed tokens
+        require(priceTickets <= myTokens(), "You don't have the required amount of tokens");
         /*
-        El cliente paga el boleto en tokens, por lo que se creo una funcion en el contrato del token con el nombre transferClient, ya que,
-        en caso de usar transfer o transferFrom, las direcciones eran equivocadas por recibir la direccion del mismo contrato y no quien lo ejecuta
+        Client pays the ticket with tokens, so I had to create a function in the token contract
+        named "transferClient", because, in case I use "transfer" or "transferFrom", addresses'
+        recived are from the contract and not the person who executes the function
         */
-        token.transferClient(msg.sender, owner, precioBoletos);
+        token.transferClient(msg.sender, owner, priceTickets);
         /*
-        Creacion de un numero aleatorio para el numero de boletos, tomando el tiempo actual, el msg.sender y el nonce
-        (un numero que solo se usa una vez, para no ejecutar la misma funcion dos veces y, así, no se repita el numero)
-        Luego, se usa keccak256 para convertir esto en un hash aleatorio que, luego, se vuelve un uint que se divide entre 10000
-        para tomar los ultimos 4 digitos, dando un valor aleatorio entre 0 - 9999
+        Creation of a random number for the ticket number, taking exact time, msg.sender and the
+        nonce (number used only once so the function can't send the same number twice). Then,
+        I used keccak256 to convert this data to a random hash that transform into an uint which
+        divides by 10000 to take the last 4 digits, taking a value between 0 and 9999
         */
-        for(uint i = 0; i < _numBoletos; i++){
+        for(uint i = 0; i < _numTickets; i++){
             uint random = uint(keccak256(abi.encodePacked(block.timestamp, msg.sender, randNonce)))%10000;
             randNonce++;
-            //Se almacenan los datos de los boletos
+            //Saving ticket data
             idPeopleTickets[msg.sender].push(random);
-            //Numero de boletos comprados
+            //Numof buyed tickets
             generatedTickets.push(random);
-            //Asignacion del adn del boleto para tener un ganador
+            //Asigning the ticket dna to get later a winner
             DNAticket[random] = msg.sender;
-            //Emision del evento
-            emit BuyedTicket(_numBoletos, msg.sender);
+            //Emiting the event
+            emit BuyedTicket(_numTickets, msg.sender);
         }
     }
 
