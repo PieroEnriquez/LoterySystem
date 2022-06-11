@@ -131,27 +131,27 @@ contract Lotery{
         }
     }
 
-    //Funcion para ver los boletos comprados
-    function misBoletos() public view returns(uint[]memory){
+    //Function to view my buyed tickets
+    function myTickets() public view returns(uint[]memory){
         return idPeopleTickets[msg.sender];
     }
 
-    //Funcion para generar un ganador y darle los tokens
-    function generarGanador() public payable onlyOwner(msg.sender){
-        //Cantidad de boletos comprados debe ser mayor a 0
+    //Function to get a winner and give the tokens
+    function generateWinner() public payable onlyOwner(msg.sender){
+        //Amount of buyed tickets must be bigger than 0
         require(generatedTickets.length > 0);
-        //Declaracion de la longitud del array
-        uint longitud = generatedTickets.length;
-        //Aleatoriamente se elige un numero entre el 0 y la longitud
-        uint posicionArray = uint(uint(keccak256(abi.encodePacked(block.timestamp)))%longitud);
-        //Seleccion del numero aleatorio mediante la posicion del array aleatoria
-        uint eleccion = generatedTickets[posicionArray];
-        //Emision del evento del ganador
-        emit WinnerTicket(eleccion);
-        //Se recupera la address del ganador
-        address direccionGanador = DNAticket[eleccion];
-        //Enviarle los tokens del premio al ganador
-        token.transferClient(msg.sender, direccionGanador, boat());
+        //Declaration of array's length
+        uint length = generatedTickets.length;
+        //Randmoly picking a number between 0 and the array's length
+        uint positionArray = uint(uint(keccak256(abi.encodePacked(block.timestamp)))%length);
+        //Selecting the random ticket number throught the random array's position
+        uint electing = generatedTickets[positionArray];
+        //Emiting the winner event
+        emit WinnerTicket(electing);
+        //Getting the winner's address
+        address winnerAddress = DNAticket[electing];
+        //Sending tokens to the winner
+        token.transferClient(msg.sender, winnerAddress, boat());
     }
 
     //Funcion que permita cambiar los tokens por ethers
