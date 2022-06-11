@@ -4,33 +4,33 @@ pragma experimental ABIEncoderV2;
 import "./SafeMath.sol";
 
 
-//Interface del token
+//Token interface
 interface IERC20{
-    //Devuelve la cantidad de tokens en existencia
+    //Total amount of token supply
     function totalSupply() external view returns(uint256);
 
-    //Devuelve la cantidad de tokens de una direccion especifica
+    //Gives back the amount of tokens from an specific address
     function balanceOf(address account) external view returns(uint256);
 
-    //Devuelve el numero de tokens que el spender podra gastar en nombre del propietario(owner)
+    //Gives back the amount of tokens the spender can spend from the owner
     function allowance(address owner, address spender) external view returns(uint256);
 
-    //Devuelve un booleano resultado de la operacion indicada
+    //Gives back a boolean resulting from the indicated operation
     function transfer(address recipient, uint256 amount) external returns(bool);
 
-    //Devuelve un booleano con el resultado de la operacion de gasto
+    //Gives a boolean resulting from an spending operation
     function approve(address spender, uint256 amount) external returns(bool);
 
-    //Devuelve un booleano con el resultado de la operacion de paso de una cantidad de tokens usando el metodo allowance()
+    //Gives back a boolean resulting from an operation transfering tokens using allowance() method
     function transferFrom(address sender, address recipient, uint256 tokens) external returns(bool);
 
-    //Transferencia de tokens a otro address
+    //Transfering tokens to another address
     function transferClient(address _client, address recipient, uint256 numTokens) external returns(bool);
 
-    //Evento que se debe emitir cuando una cantidad de tokens pase de un destino a otro
+    //Event to emit when tokens pass from one to another address
     event Transfer(address indexed from, address indexed to, uint256 value);
 
-    //Evento que se debe emitir cuando se establece una asignacion con el metodo allowance
+    //Even to emit when it's stablished an asignation with the allowance() method
     event Approval(address indexed owner, address indexed expender, uint256 value);
 
 }
